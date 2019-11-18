@@ -86,6 +86,12 @@ class Dim {
         <String, dynamic>{'identifier': identifier, 'content': content});
   }
 
+  ///发送自定义消息
+  Future<dynamic> sendCustomMessages(String identifier, String content) async {
+    return await _methodChannel.invokeMethod('sendCustomsMessages',
+        <String, dynamic>{'identifier': identifier, 'content': content});
+  }
+
   ///发送图片消息
   ///imagePath   eg for android : Environment.getExternalStorageDirectory() + "/DCIM/Camera/1.jpg"
   Future<dynamic> sendImageMessages(String identifier, String imagePath) async {

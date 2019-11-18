@@ -10,6 +10,7 @@ import com.tencent.imsdk.TIMCallBack;
 import com.tencent.imsdk.TIMConnListener;
 import com.tencent.imsdk.TIMConversation;
 import com.tencent.imsdk.TIMConversationType;
+import com.tencent.imsdk.TIMCustomElem;
 import com.tencent.imsdk.TIMElem;
 import com.tencent.imsdk.TIMFriendGenderType;
 import com.tencent.imsdk.TIMFriendshipManager;
@@ -119,7 +120,7 @@ public class DimPlugin implements MethodCallHandler, EventChannel.StreamHandler 
             //判断是否是在主线程
             if (SessionWrapper.isMainProcess(registrar.context())) {
                 TIMSdkConfig config = new TIMSdkConfig(appid)
-                        .enableLogPrint(true)
+                        .enableLogPrint(false)
                         .setLogLevel(TIMLogLevel.DEBUG)
                         .setLogPath(Environment.getExternalStorageDirectory().getPath() + "/justfortest/");
 
@@ -278,7 +279,36 @@ public class DimPlugin implements MethodCallHandler, EventChannel.StreamHandler 
                             }
                         }
                     });
-        } else if (call.method.equals("sendTextMessages")) {
+        } else if (call.method.equals("sendCustomsMessages")) {
+            String identifier = call.argument("identifier");
+            String content = call.argument("content");
+            TIMMessage msg = new TIMMessage();
+
+            TIMCustomElem elem = new TIMCustomElem();
+            elem.setData(content.getBytes());
+
+            //将elem添加到消息
+            if (msg.addElement(elem) != 0) {
+                Log.d(TAG, "addElement failed");
+                return;
+            }
+            TIMConversation conversation = TIMManager.getInstance().getConversation(TIMConversationType.C2C, identifier);
+            //发送消息
+            conversation.sendMessage(msg, new TIMValueCallBack<TIMMessage>() {//发送消息回调
+                @Override
+                public void onError(int code, String desc) {//发送消息失败
+                    Log.d(TAG, "send message failed. code: " + code + " errmsg: " + desc);
+                    result.error(desc, String.valueOf(code), null);
+                }
+
+                @Override
+                public void onSuccess(TIMMessage msg) {//发送消息成功
+                    Log.e(TAG, "sendTextMessages ok");
+                    result.success("sendTextMessages ok");
+                }
+            });
+        }
+        else if (call.method.equals("sendTextMessages")) {
             String identifier = call.argument("identifier");
             String content = call.argument("content");
             TIMMessage msg = new TIMMessage();
