@@ -110,6 +110,27 @@
         } fail:^(int code, NSString *msg) {
             result([NSString stringWithFormat:@"get message failed. code: %d msg: %@", code, msg]);
         }];
+    }else if([@"sendCustomMessages" isEqualToString:call.method]){
+         NSString *identifier = call.arguments[@"identifier"];
+         NSString *content = call.arguments[@"content"];
+         TIMMessage *msg = [TIMMessage new];
+
+         //自定义内容
+         TIMCustomElem *elem = [[TIMCustomElem alloc] init];
+         elem.data = [content dataUsingEncoding:NSUTF8StringEncoding];
+
+         //将elem添加到消息
+         if([msg addElem:elem] != 0){
+             NSLog(@"addElement failed");
+             return;
+         }
+         TIMConversation *conversation = [[TIMManager sharedInstance] getConversation:TIM_C2C receiver:identifier];
+         //发送消息
+         [conversation sendMessage:msg succ:^{
+             result(@"send message ok");
+         } fail:^(int code, NSString *msg) {
+             result([NSString stringWithFormat:@"send message failed. code: %d desc:%@", code, msg]);
+         }];
     }else if([@"sendTextMessages" isEqualToString:call.method]){
         NSString *identifier = call.arguments[@"identifier"];
         NSString *content = call.arguments[@"content"];

@@ -6,6 +6,7 @@ Pod::Spec.new do |s|
   s.version          = '0.2.7'
   s.summary          = 'TIMSDK for flutter'
   s.description      = <<-DESC
+  s.platform         = 'ios'
 A new flutter plugin project.
                        DESC
   s.homepage         = 'https://gitee.com/gameOverFlow/dim'
