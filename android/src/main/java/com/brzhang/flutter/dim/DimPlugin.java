@@ -40,6 +40,7 @@ import com.tencent.imsdk.friendship.TIMFriendRequest;
 import com.tencent.imsdk.friendship.TIMFriendResponse;
 import com.tencent.imsdk.friendship.TIMFriendResult;
 import com.tencent.imsdk.session.SessionWrapper;
+import com.tencent.openqq.protocol.imsdk.msg;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,12 +71,16 @@ public class DimPlugin implements MethodCallHandler, EventChannel.StreamHandler 
             @Override
             public boolean onNewMessages(List<TIMMessage> list) {
                 if (list != null && list.size() > 0) {
-                    List<Message> messages = new ArrayList<>();
+                    List<String> messages = new ArrayList<>();
                     for (TIMMessage timMessage : list) {
-                        messages.add(new Message(timMessage));
+                        TIMElem elem = timMessage.getElement(0);
+                        if (elem instanceof TIMCustomElem) {
+                            TIMCustomElem customElem = (TIMCustomElem) elem;
+                            messages.add(new String(customElem.getData()));
+                        }
+
                     }
-                    eventSink.success(new Gson().toJson(messages, new TypeToken<Collection<Message>>() {
-                    }.getType()));
+                    eventSink.success(new Gson().toJson(messages));
                 }
                 return false;
             }
@@ -303,8 +308,8 @@ public class DimPlugin implements MethodCallHandler, EventChannel.StreamHandler 
 
                 @Override
                 public void onSuccess(TIMMessage msg) {//发送消息成功
-                    Log.e(TAG, "sendTextMessages ok");
-                    result.success("sendTextMessages ok");
+                    Log.e(TAG, "sendCustomsMessages ok");
+                    result.success("sendCustomsMessages ok");
                 }
             });
         }
