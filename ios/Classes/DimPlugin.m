@@ -110,7 +110,7 @@
         } fail:^(int code, NSString *msg) {
             result([NSString stringWithFormat:@"get message failed. code: %d msg: %@", code, msg]);
         }];
-    }else if([@"sendCustomMessages" isEqualToString:call.method]){
+    }else if([@"sendCustomsMessages" isEqualToString:call.method]){
          NSString *identifier = call.arguments[@"identifier"];
          NSString *content = call.arguments[@"content"];
          TIMMessage *msg = [TIMMessage new];
@@ -355,8 +355,12 @@
     if(msgs != nil && msgs.count > 0){
         NSMutableArray *dictArray = [[NSMutableArray alloc]init];
         for (TIMMessage *message in msgs) {
-            DimMessage *dimMessage = [DimMessage initWithTIMMessage:message];
-            [dictArray addObject:dimMessage];
+            TIMElem *elem = [message getElem:0];
+            if ([elem isKindOfClass: [TIMCustomElem class]]) {
+                TIMCustomElem * customElem = (TIMCustomElem *) elem;
+                 NSString *message = [[NSString alloc] initWithData:customElem.data encoding:NSUTF8StringEncoding];
+                [dictArray addObject:message];
+            }
         }
         NSString *jsonString = [dictArray yy_modelToJSONString];
         self.eventSink(jsonString);
@@ -367,7 +371,7 @@
 /**
  *  会话列表变动
  */
-- (void)onRefresh{
+- (void) onRefresh{
     self.eventSink(@"[]");
 }
 @end
